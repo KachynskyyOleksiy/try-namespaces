@@ -1,0 +1,1 @@
+Try namaspaces in socket.io
