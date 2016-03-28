@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="tryApp">
+<head>
+  <meta charset="utf8">
+  <base href="/">
+  <title>Try Namespaces</title>
+
+  <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+</head>
+<body>
+
+  <div class="container">
+
+    <ul class="nav navbar-nav">
+      <li><a href="#/">Home</a></li>
+      <li><a href="#/players">Players</a></li>
+      <li><a href="#/game">Game</a></li>
+      <li><a href="#/about">About</a></li>
+    </ul>
+
+    <div ng-view></div>
+
+  </div>
+
+
+  <!-- jquery, bootstrap-->
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <!-- socket -->
+  <script src="/bower_components/socket.io-client/socket.io.js"></script>
+
+  <!-- angular -->
+  <script src="/bower_components/angular/angular.min.js"></script>
+  <script src="/bower_components/angular-route/angular-route.min.js"></script>
+
+  <!-- angular client app and dependencies -->
+  <script src="/js/client-app.js"></script>
+
+</body>
+</html>
