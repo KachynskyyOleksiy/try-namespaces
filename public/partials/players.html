@@ -1,0 +1,14 @@
+<div class="jumbotron">
+  <h1>Players online</h1>
+</div>
+
+<div class="row">
+  <div class="col-sm-4">
+    <table class="table">
+      <tr ng-repeat="user in usersOnline">
+        <td><span>{{user.name}}</span></td>
+        <td><button>Invite</button></td>
+      </tr>
+    </table>
+  </div>
+</div>

@@ -1,3 +1,14 @@
 <div class="jumbotron">
-  <h1>Welcome</h1>      
+  <h1 ng-click="hi()">Welcome</h1>
 </div>
+<div class="row">
+  <div class="col-sm-4">
+    <table class="table" id="records">
+      <tr ng-repeat='record in records | orderBy: "-score"'>
+        <td>{{ record.userName }}</td>
+        <td>{{ record.score }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
