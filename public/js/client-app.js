@@ -89,10 +89,13 @@ tryApp.controller('playersController', ['$scope', '$http', 'socketio', function(
       $scope.usersOnline = response.data;
   });
 
-
   socketio.on('userList', function(data) {
     $scope.usersOnline = data;
     console.log(data);
   });
+
+  $scope.invite = function (userId) {
+    socketio.emit('invite', userId)
+  }
 
 }]); 

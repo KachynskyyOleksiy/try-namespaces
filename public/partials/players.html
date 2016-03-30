@@ -7,7 +7,7 @@
     <table class="table">
       <tr ng-repeat="user in usersOnline">
         <td><span>{{user.name}}</span></td>
-        <td><button>Invite</button></td>
+        <td><button ng-click='invite(user.id)'>Invite</button></td>
       </tr>
     </table>
   </div>

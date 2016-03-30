@@ -75,6 +75,11 @@ io.on('connection', function(client){
     client.broadcast.emit('userList', getUsersOnline());
   });
 
+  client.on('invite', function(userId){
+    console.log(client.name + " invite " + getUser(userId).name);
+  }); 
+
+
   client.on('disconnect', function(){
     setStatus(client.name, false);
     clearNamespace(client.name);
@@ -88,6 +93,7 @@ callNTimes(100, 2000, function() {
   updateRecords();
   io.emit('updateRecords');
 });
+
 
 
 
@@ -118,6 +124,18 @@ function getUsersOnline() {
     }
   }
   return onlineUsers;
+}
+
+function getUser(userId) {
+  var users = getAllUsers();
+  for (var i=0; i<users.length; i++){
+    if (users[i].id == userId){
+        user = {
+          "name": users[i].name
+        }
+      return user;
+    }
+  }
 }
 
 function getRecords() {
