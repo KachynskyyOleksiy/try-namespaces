@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "./node_modules/bower/bin/bower install"
   },
   "engines": {
     "node": "4.4.0"
@@ -17,6 +18,7 @@
   "author": "Oleksiy",
   "license": "ISC",
   "dependencies": {
+    "bower": "^1.7.7",
     "express": "^4.13.4",
     "md5": "^2.1.0",
     "socket.io": "^1.4.5"
