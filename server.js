@@ -18,6 +18,17 @@ app.get('/', function(request, response) {
 });
 
 
+
+app.get('/api/send-message-to/:room', function(request, response) {
+  //console.log(request.params.room);
+  var room = request.params.room;
+  msg = 'Hi, someone in' + room;
+  gameSocketS.to(room).emit('hi', msg);
+  console.log('send message to', room);
+  
+  response.sendStatus(200);
+});
+
 // Start server
 server.listen(port, function() {
   console.log("Server listen on port "+ port +"...");

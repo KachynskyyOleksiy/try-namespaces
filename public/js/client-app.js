@@ -64,12 +64,16 @@ tryApp.controller('mainController', ['$scope', 'socketio', '$http', function($sc
 
 }]); 
 
-tryApp.controller('homeController', ['$scope', function($scope){
+tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
   console.log('homeController');
 
   var gameSocket = io.connect('/game');
   gameSocket.on('connect', function(data) {
     console.log('connected to game Namespace');
+  });
+
+  gameSocket.on('hi', function(data) {
+    console.log(data);
   });
 
   $scope.connectTo = function(room){
@@ -78,7 +82,10 @@ tryApp.controller('homeController', ['$scope', function($scope){
   };
 
   $scope.messageTo = function(room){
-    //smth
+    $http.get('/api/send-message-to/'+room)
+    .then(function(response) {
+        //console.log(response.status);
+    });
   };
 
 
@@ -86,9 +93,7 @@ tryApp.controller('homeController', ['$scope', function($scope){
 
   
 
-  // gameSocket.on('hi', function(data) {
-  //   console.log(data);
-  // });
+
 
 
 }]); 
