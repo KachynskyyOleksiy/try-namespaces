@@ -50,6 +50,12 @@ gameSocketS.on('connection', function(socket){
   console.log('someone connected to game socket');
   socket.on('disconnect', function() {
     console.log('someone disconnected');
+    // console.log(getUsersInRoomNumber('room1', '/game'));
+    if(io.nsps['/game'].adapter.rooms['room1'] == undefined) {console.log('room1 is empty!');}
+    if(io.nsps['/game'].adapter.rooms['room2'] == undefined) {console.log('room2 is empty!');}
+    // console.log(io.nsps['/game'].adapter.rooms['room1']);
+    // if (io.nsps['/game'].adapter.rooms['room1'].length==0){ console.log('room1 is empty!');}
+    // if (io.nsps['/game'].adapter.rooms['room2'].length==0){ console.log('room2 is empty!');}
   });
   socket.on('join', function(room) {
     socket.join(room);
@@ -59,3 +65,9 @@ gameSocketS.on('connection', function(socket){
 });
 
 
+var getUsersInRoomNumber = function(roomName, namespace) {
+  if (!namespace) namespace = '/';
+  var room = io.nsps[namespace].adapter.rooms[roomName];
+  if (!room) return null;
+  return Object.keys(room).length;
+}
