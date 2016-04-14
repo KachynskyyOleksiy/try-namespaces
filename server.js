@@ -12,6 +12,7 @@ var port = process.env.PORT || 8080;
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 app.use(express.static(__dirname + '/public'));
 
+
 // Routes
 app.get('/', function(request, response) {
   response.sendFile(__dirname + "/public/html/index.html");
@@ -25,41 +26,54 @@ app.get('/api/records', function(request, response) {
   response.send(getRecords());
 });
 
+app.get('/api/get-namespace/:username', function(request, response) {
+  response.send(getUserNamespace(request.params.username));
+});
+
+// app.get('/api/invite/:userId', function(request, response) {
+//   io.of(ns).emit('invite', data);
+//   response.send(getUserNamespace(request.params.username));
+// });
+
+
+
+
 // Start server
 server.listen(port, function() {
   console.log("Server listen on port "+ port +"...");
 });
 
 
+
 var users = [
-  {
-    id: '1',
-    name: "Ivan",
-    online: false,
-    namespace: "",
-    maxScore: 70
-  },
-  {
-    id: '2',
-    name: "Petro",
-    online: false,
-    namespace: "",
-    maxScore: 90
-  },
-  {
-    id: '3',
-    name: "Foo",
-    online: false,
-    namespace: "",
-    maxScore: 100
-  },
-  {
-    id: '4',
-    name: "Bar",
-    online: false,
-    namespace: "",
-    maxScore: 55
-  }
+{
+  id: '1',
+  name: "Ivan",
+  online: false,
+  namespace: "nsIvan",
+  maxScore: 70
+},
+{
+  id: '2',
+  name: "Petro",
+  online: false,
+  namespace: "nsPetro",
+  maxScore: 90
+},
+{
+  id: '3',
+  name: "Foo",
+  online: false,
+  namespace: "nsFoo",
+  maxScore: 100
+},
+{
+  id: '4',
+  name: "Bar",
+  online: false,
+  namespace: "nsBar",
+  maxScore: 55
+}
 ];
 
 io.on('connection', function(client){
@@ -67,29 +81,54 @@ io.on('connection', function(client){
   client.on('join', function(userName) {
     client.name = userName;
     setStatus(client.name, true);
-    setNamespace(client.name);
-    
+    //setNamespace(client.name);
+
     console.log(client.name + ' connected to general BUS.');
     
     client.emit('userList', getUsersOnline());
     client.broadcast.emit('userList', getUsersOnline());
-  });
 
-  client.on('invite', function(userId){
-    console.log(client.name + " invite " + getUser(userId).name);
-  }); 
+    var ns = getUserNamespace(client.name);
+    io.of(ns).on('connection', function(socket){
+      socket.name = client.name;
+      console.log(client.name + ' connected to own namespace: ' + ns);
+
+      socket.on('invite', function(userId){
+        console.log(socket.name + " invite " + getUser(userId).name);
+        io.of(getUserNamespacebyId(userId)).emit('incomingInvite', {
+          userName: socket.name,
+          userId: getUserIdByName(client.name)
+        })
+      }); 
+
+      socket.on('accept', function(userId){
+        console.log('Game started: ' + socket.name + ' vs ' + getUser(userId).name);
+        var data = {player1: socket.name, player2: getUser(userId).name}
+        io.of(getUserNamespacebyId(userId)).emit('startGame', data);
+        io.of(getUserNamespace(socket.name)).emit('startGame', data);
+      });
+      socket.on('disconnect', function(){
+        setStatus(client.name, false);
+        //clearNamespace(client.name);
+        //client.broadcast.emit('userList', getUsersOnline());
+        console.log(socket.name + ' disconnect form own namespace.');
+      });
+    }); 
+
+
+  });
 
 
   client.on('disconnect', function(){
     setStatus(client.name, false);
-    clearNamespace(client.name);
+    //clearNamespace(client.name);
     client.broadcast.emit('userList', getUsersOnline());
     
     console.log(client.name + ' disconnect form general BUS.');
   });
 });
 
-callNTimes(100, 2000, function() { 
+callNTimes(100, 20000, function() { 
   updateRecords();
   io.emit('updateRecords');
 });
@@ -130,10 +169,37 @@ function getUser(userId) {
   var users = getAllUsers();
   for (var i=0; i<users.length; i++){
     if (users[i].id == userId){
-        user = {
-          "name": users[i].name
-        }
+      user = {
+        "name": users[i].name
+      }
       return user;
+    }
+  }
+}
+
+function getUserNamespace(userName) {
+  var users = getAllUsers();
+  for (var i=0; i<users.length; i++){
+    if (users[i].name == userName){
+      return users[i].namespace;
+    }
+  }
+}
+
+function getUserNamespacebyId(userId) {
+  var users = getAllUsers();
+  for (var i=0; i<users.length; i++){
+    if (users[i].id == userId){
+      return users[i].namespace;
+    }
+  }
+}
+
+function getUserIdByName(userName) {
+  var users = getAllUsers();
+  for (var i=0; i<users.length; i++){
+    if (users[i].name == userName){
+      return users[i].id;
     }
   }
 }
@@ -199,3 +265,15 @@ function callNTimes(n, time, fn) {
   }
   setTimeout(callFn, time);
 }
+
+
+
+app.get('/records', function(request, response) {
+  var records = [
+    {userName: 'Ivan', score: Math.floor(Math.random() * (100 - 10 + 1) + 10) },
+    {userName: 'Petro', score: Math.floor(Math.random() * (100 - 10 + 1) + 10) },
+    {userName: 'Foo', score: Math.floor(Math.random() * (100 - 10 + 1) + 10) },
+    {userName: 'Bar', score: Math.floor(Math.random() * (100 - 10 + 1) + 10) },
+  ];
+  response.send(records);
+});

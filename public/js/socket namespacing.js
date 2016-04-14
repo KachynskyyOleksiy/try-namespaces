@@ -1,4 +1,4 @@
-var tryApp = angular.module('tryApp', ['ngRoute']);
+npm run clientvar tryApp = angular.module('tryApp', ['ngRoute']);
 
 tryApp.config(function($routeProvider) {
   $routeProvider
@@ -21,10 +21,34 @@ tryApp.config(function($routeProvider) {
   });
 });
 
-tryApp.factory('namedSocket', ['$rootScope', '$cacheFactory', function ($rootScope, $cacheFactory) {
+tryApp.factory('socketio', ['$rootScope', function ($rootScope) {
+  var socket = io.connect();
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {  
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
+}]);
+
+tryApp.faсtory('namedSocket', ['$rootScope', '$cacheFactory', function ($rootScope, $cacheFactory) {
   var sockets = $cacheFactory('socket-connections');
   return function (namespace) {
-    var ns = namespace? '/'+namespace: '/'; 
+    var ns = namespace? namespace: '/'; 
     var socket;
     if (!sockets.get(ns)) {
       sockets.put(ns, io.connect(ns));
@@ -38,15 +62,15 @@ tryApp.factory('namedSocket', ['$rootScope', '$cacheFactory', function ($rootSco
   };
 
   function on(socket, event, callback) {
-    socket.on(event, function () {  
+    socket.on(eventName, function () {  
       var args = arguments;
       $rootScope.$apply(function () {
         callback.apply(socket, args);
       });
-    })
+    }
   }
 
-  function emit(socket, eventName, data, callback) {
+  function emit(eventName, data, callback) {
     socket.emit(eventName, data, function () {
       var args = arguments;
       $rootScope.$apply(function () {
@@ -58,39 +82,29 @@ tryApp.factory('namedSocket', ['$rootScope', '$cacheFactory', function ($rootSco
   }
 }]);
 
+// var socket;
 
-tryApp.controller('mainController', ['$scope', 'namedSocket', '$http', function($scope, namedSocket, $http){
+tryApp.controller('mainController', ['$scope', 'socketio', '$http', 'namedSocket', function($scope, socketio, $http, namedSocket){
   console.log('mainController!');
-
-  var generalBus = namedSocket('/');
-  var userSocket;
+  var socket = namedSocket('/my-name-space');
 
   $http.get('/api/records')
   .then(function(response) {
     $scope.records = response.data;
   });
 
-    // generalBus.on('updateRecords', function() {
-    //   console.log('updateRecords');
-    //   $http.get('/api/records')
-    //   .then(function(response) {
-    //       $scope.records = response.data;
-    //   });
-    // });
-
-    generalBus.on('connect', function(data) {
-      userName = prompt("What is your name?");
-      generalBus.emit('join', userName);
-
-      $http.get('/api/get-namespace/'+userName)
-      .then(function(response) {
-        var ns = response.data.toString();
-        console.log(ns);
-        userSocket = namedSocket(ns);
-        $scope.userSocket = userSocket;
-      });
-
+  socketio.on('updateRecords', function() {
+    console.log('updateRecords');
+    $http.get('/api/records')
+    .then(function(response) {
+      $scope.records = response.data;
     });
+  });
+
+  socketio.on('connect', function(data) {
+    userName = prompt("What is your name?");
+    socketio.emit('join', userName);
+  });
 
     // socket.on('newNamaspace', function(data){
     //   console.log(data);
@@ -104,40 +118,21 @@ tryApp.controller('homeController', ['$scope', function($scope){
   };
 }]); 
 
-tryApp.controller('playersController', ['$scope', '$http', 'namedSocket', '$location',function($scope, $http, namedSocket, $location){
+tryApp.controller('playersController', ['$scope', '$http', 'socketio', function($scope, $http, socketio){
   console.log('playersController');
-
-  var generalBus = namedSocket('/');
-  var userSocket = $scope.userSocket;
 
   $http.get('api/users-online')
   .then(function(response) {
     $scope.usersOnline = response.data;
   });
 
-  generalBus.on('userList', function(data) {
+  socketio.on('userList', function(data) {
     $scope.usersOnline = data;
     console.log(data);
   });
 
   $scope.invite = function (userId) {
-    userSocket.emit('invite', userId)
-  };
-
-  $scope.usersInvites = [];
-
-  userSocket.on('incomingInvite', function(data){
-    $scope.usersInvites.push(data);
-    console.log(data);
-  })
-
-  $scope.accept = function (userId) {
-    userSocket.emit('accept', userId);
-  };
-
-  userSocket.on('startGame', function(data){
-    $location.path('/game')
-    $scope.data = data;
-  });
+    socketio.emit('invite', userId)
+  }
 
 }]); 
