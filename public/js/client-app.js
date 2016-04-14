@@ -6,16 +6,16 @@ tryApp.config(function($routeProvider) {
     controller : 'homeController',
     templateUrl : 'partials/home.html',
   })
-  .when('/about', {
-    templateUrl : 'partials/about.html',
-  })
-  .when('/players', {
-    controller : 'playersController',
-    templateUrl : 'partials/players.html',
-  })
-  .when('/game', {
-    templateUrl : 'partials/game.html',
-  })
+  // .when('/about', {
+  //   templateUrl : 'partials/about.html',
+  // })
+  // .when('/players', {
+  //   controller : 'playersController',
+  //   templateUrl : 'partials/players.html',
+  // })
+  // .when('/game', {
+  //   templateUrl : 'partials/game.html',
+  // })
   .otherwise({
     templateUrl : 'partials/404.html',
   });
@@ -51,51 +51,63 @@ tryApp.factory('socketio', ['$rootScope', function ($rootScope) {
 tryApp.controller('mainController', ['$scope', 'socketio', '$http', function($scope, socketio, $http){
     console.log('mainController!');
 
-    $http.get('/api/records')
-    .then(function(response) {
-        $scope.records = response.data;
-    });
-
-    socketio.on('updateRecords', function() {
-      console.log('updateRecords');
-      $http.get('/api/records')
-      .then(function(response) {
-          $scope.records = response.data;
-      });
-    });
-
-    socketio.on('connect', function(data) {
-      userName = prompt("What is your name?");
-      socketio.emit('join', userName);
-    });
-
-    // socket.on('newNamaspace', function(data){
-    //   console.log(data);
+    // $http.get('/api/records')
+    // .then(function(response) {
+    //     $scope.records = response.data;
     // });
+
+
+    // socketio.on('connect', function(data) {
+    //   userName = prompt("What is your name?");
+    //   socketio.emit('join', userName);
+    // });
+
 }]); 
 
 tryApp.controller('homeController', ['$scope', function($scope){
   console.log('homeController');
-  $scope.hi = function(){
-    console.log('hi!');
+
+  var gameSocket = io.connect('/game');
+  gameSocket.on('connect', function(data) {
+    console.log('connected to game Namespace');
+  });
+
+  $scope.connectTo = function(room){
+    gameSocket.emit('join', room);
+    console.log('connect to', room, '...');
   };
-}]); 
 
-tryApp.controller('playersController', ['$scope', '$http', 'socketio', function($scope, $http, socketio){
-  console.log('playersController');
+  $scope.messageTo = function(room){
+    //smth
+  };
 
-  $http.get('api/users-online')
-  .then(function(response) {
-      $scope.usersOnline = response.data;
-  });
 
-  socketio.on('userList', function(data) {
-    $scope.usersOnline = data;
-    console.log(data);
-  });
 
-  $scope.invite = function (userId) {
-    socketio.emit('invite', userId)
-  }
+
+  
+
+  // gameSocket.on('hi', function(data) {
+  //   console.log(data);
+  // });
+
 
 }]); 
+
+// tryApp.controller('playersController', ['$scope', '$http', 'socketio', function($scope, $http, socketio){
+//   console.log('playersController');
+
+//   $http.get('api/users-online')
+//   .then(function(response) {
+//       $scope.usersOnline = response.data;
+//   });
+
+//   socketio.on('userList', function(data) {
+//     $scope.usersOnline = data;
+//     console.log(data);
+//   });
+
+//   $scope.invite = function (userId) {
+//     socketio.emit('invite', userId)
+//   }
+
+// }]); 
