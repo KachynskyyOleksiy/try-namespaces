@@ -88,11 +88,12 @@ tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
     });
   };
 
-
-
-
-  
-
+  $scope.messageToAll = function(){
+    $http.get('/api/send-message-to-all/')
+    .then(function(response) {
+        //console.log(response.status);
+    });
+  };
 
 
 

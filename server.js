@@ -25,6 +25,14 @@ app.get('/api/send-message-to/:room', function(request, response) {
   msg = 'Hi, someone in' + room;
   gameSocketS.to(room).emit('hi', msg);
   console.log('send message to', room);
+
+  response.sendStatus(200);
+});
+
+app.get('/api/send-message-to-all/', function(request, response) {
+  //console.log(request.params.room);
+  gameSocketS.emit('hi', 'all');
+  console.log('send message to all');
   
   response.sendStatus(200);
 });
