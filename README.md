@@ -1,1 +1,1 @@
-Try namaspaces in socket.io
+Repo for learning and experimentation socket.io library for node.js.
