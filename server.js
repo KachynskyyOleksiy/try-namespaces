@@ -71,3 +71,15 @@ var getUsersInRoomNumber = function(roomName, namespace) {
   if (!room) return null;
   return Object.keys(room).length;
 }
+
+
+
+// console.log(io.nsps['/game'].adapter.rooms);
+// { 
+//   '/game#jfS__82wX9QwEIC1AAAA': Room { sockets: { '/game#jfS__82wX9QwEIC1AAAA': true }, length: 1 },
+//   '/game#ZX2fIXC_rIX-Gyu0AAAB': Room { sockets: { '/game#ZX2fIXC_rIX-Gyu0AAAB': true }, length: 1 },
+//   '/game#dP3u1OaTu5H0gD2PAAAC': Room { sockets: { '/game#dP3u1OaTu5H0gD2PAAAC': true }, length: 1 },
+//   room1: Room { sockets: { '/game#dP3u1OaTu5H0gD2PAAAC': true, '/game#jfS__82wX9QwEIC1AAAA': true },length: 2 },
+//   room2: Room { sockets: { '/game#ZX2fIXC_rIX-Gyu0AAAB': true }, length: 1 } 
+// }
+
