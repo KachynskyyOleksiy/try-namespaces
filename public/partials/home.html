@@ -1,17 +1,24 @@
-<div class="jumbotron">
-  <h1>Try Rooms</h1>
+<div class="row">
+  <h1 class="text-center">Learn Sockets</h1>
 </div>
+
 <div class="row">
 
   <div class="col-xs-6">
-    <button ng-click="connectTo('room1')">Connect to room1</button>
-    <button ng-click="connectTo('room2')">Connect to room2</button>
+    <h3>Client Methods</h3>
+<!--     <button ng-click="connectToGameNS()">Connect to Game NS</button><br/> -->
+    <button ng-click="disconnectFromGameNS()">Disconnect From Game NS</button><br/>
+    <button ng-click="joinToRoom('room1')">Join to room1</button>
+    <button ng-click="joinToRoom('room2')">Join to room2</button><br/>
+    <button ng-click="leaveRoom('room1')">Leave room1</button>
+    <button ng-click="leaveRoom('room2')">Leave room2</button> 
   </div>
 
   <div class="col-xs-6">
+    <h3>Server Methods</h3>
     <button ng-click="messageTo('room1')">Message to room1</button>
     <button ng-click="messageTo('room2')">Message to room2</button>
-    <button ng-click="messageToAll()">Message to all rooms</button>
+    <button ng-click="messageToAll()">Message to all rooms in game NS</button>
   </div>
 
 </div>
