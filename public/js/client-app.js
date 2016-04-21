@@ -89,6 +89,7 @@ tryApp.controller('homeController', ['$scope', '$http', 'SocketFactory', functio
 
   $scope.connectToRootNS = function(){
     rootSocket = SocketFactory();
+    console.log(rootSocket);
     rootSocket.on('connect', function(data) {
       console.log('connected to ROOT NS');
     });
@@ -161,7 +162,8 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
     socket.on('disconnect', function () { sockets.remove(ns); console.log(sockets.info()); })
     return {
       on: on.bind(null, socket),
-      emit: emit.bind(null, socket)
+      emit: emit.bind(null, socket),
+      disconnect: disconnect.bind(null, socket)
     };
   };
 
@@ -184,4 +186,9 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
       });
     })
   }
+
+  function disconnect(socket) {
+    socket.disconnect();
+  }
+
 }]);
