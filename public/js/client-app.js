@@ -25,14 +25,13 @@ tryApp.controller('gameController', ['$scope', function($scope){
 }]); 
 
 
-tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
+tryApp.controller('homeController', ['$scope', '$http', 'SocketFactory', function($scope, $http, SocketFactory){
   console.log('homeController');
 
-  // var gameSocket = io('/game');
   var gameSocket;
 
   $scope.connectToGameNS = function(){
-    gameSocket = io.connect('/game');
+    gameSocket = SocketFactory('game');
 
     gameSocket.on('connect', function(data) {
       console.log('connected to GAME NS');
@@ -62,9 +61,11 @@ tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
 
   };
 
+
   var chatSocket;
+
   $scope.connectToChatNS = function(){
-    chatSocket = io.connect('/chat');
+    chatSocket = SocketFactory('chat');
     chatSocket.on('connect', function(data) {
       console.log('connected to CHAT NS');
     });
@@ -83,9 +84,11 @@ tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
 
   };
 
+
   var rootSocket;
+
   $scope.connectToRootNS = function(){
-    rootSocket = io.connect('/');
+    rootSocket = SocketFactory();
     rootSocket.on('connect', function(data) {
       console.log('connected to ROOT NS');
     });
@@ -142,3 +145,43 @@ tryApp.controller('homeController', ['$scope', '$http', function($scope, $http){
 
 
 }]); 
+
+
+
+tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootScope, $cacheFactory) {
+  var sockets = $cacheFactory('socket-connections');
+  return function (namespace) {
+    var ns = namespace? '/'+namespace: '/'; 
+    var socket;
+    if (!sockets.get(ns)) {
+      sockets.put(ns, io.connect(ns));
+    }
+    socket = sockets.get(ns);
+    console.log(sockets.info());
+    socket.on('disconnect', function () { sockets.remove(ns); console.log(sockets.info()); })
+    return {
+      on: on.bind(null, socket),
+      emit: emit.bind(null, socket)
+    };
+  };
+
+  function on(socket, event, callback) {
+    socket.on(event, function () {  
+      var args = arguments;
+      $rootScope.$apply(function () {
+        callback.apply(socket, args);
+      });
+    })
+  }
+
+  function emit(socket, eventName, data, callback) {
+    socket.emit(eventName, data, function () {
+      var args = arguments;
+      $rootScope.$apply(function () {
+        if (callback) {
+          callback.apply(socket, args);
+        }
+      });
+    })
+  }
+}]);
