@@ -35,18 +35,35 @@ app.get('/api/send-message-to/:room', function(request, response) {
   response.sendStatus(200);
 });
 
-app.get('/api/send-message-to-all/', function(request, response) {
-  gameSocketS.emit('hi', 'all');
+app.get('/api/send-message-to-all-in-game-NS/', function(request, response) {
+  gameSocketS.emit('hi', 'Hi all in GAME NS');
   console.log('send message to all in GAME NS');
   
   response.sendStatus(200);
 });
+
+app.get('/api/send-message-to-all-in-chat-NS/', function(request, response) {
+  chatSocketS.emit('hi', 'Hi all in CHAT NS');
+  console.log('send message to all in CHAT NS');
+  
+  response.sendStatus(200);
+});
+
+app.get('/api/send-message-to-all-in-root-NS/', function(request, response) {
+  rootSocketS.emit('hi', 'HI all in ROOT NS');
+  console.log('send message to all in ROOT NS');
+  
+  response.sendStatus(200);
+});
+
 //----------------------------------------------------
 
 
 
 //---------------------Sockets-------------------------------
-io.of('/').on('connection', function(socket) {
+var rootSocketS = io.of('/');
+rootSocketS.on('connection', function(socket) {
+  socket.emit('hi', 'Hi, someone in ROOT ns!');
   console.log('someone Connected to ROOT NS');
 
   socket.on('disconnect', function(){
@@ -54,12 +71,22 @@ io.of('/').on('connection', function(socket) {
   });
 });
 
+var chatSocketS = io.of('/chat');
+chatSocketS.on('connection', function(socket) {
+  socket.emit('hi', 'Hi, someone in CHAT ns!');
+  console.log('someone Connected to CHAT NS');
+
+  socket.on('disconnect', function(){
+    console.log('someone Disconnected from CHAT NS');
+  });
+});
+
 
 var gameSocketS = io.of('/game');
 
 gameSocketS.on('connection', function(socket){
+  socket.emit('hi', 'Hi, someone in GAME ns!');
   console.log('someone Connected to GAME NS');
-  socket.emit('hi', 'Hi, someone!');
 
   socket.on('disconnect', function() {
     console.log('someone disconnected from GAME NS');
