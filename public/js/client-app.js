@@ -156,10 +156,9 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
     var socket;
     if (!sockets.get(ns)) {
       sockets.put(ns, io.connect(ns));
+      console.log('create new socket', ns); // - for test! should remove!
     }
     socket = sockets.get(ns);
-    console.log(sockets.info());
-    socket.on('disconnect', function () { sockets.remove(ns); console.log(sockets.info()); })
     return {
       on: on.bind(null, socket),
       emit: emit.bind(null, socket),
@@ -170,7 +169,7 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
   function on(socket, event, callback) {
     socket.on(event, function () {  
       var args = arguments;
-      $rootScope.$apply(function () {
+      $rootScope.$applyAsync(function () {
         callback.apply(socket, args);
       });
     })
@@ -179,15 +178,16 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
   function emit(socket, eventName, data, callback) {
     socket.emit(eventName, data, function () {
       var args = arguments;
-      $rootScope.$apply(function () {
+      $rootScope.$applyAsync(function () {
         if (callback) {
           callback.apply(socket, args);
         }
       });
     })
   }
-
+  
   function disconnect(socket) {
+    sockets.remove(socket.nsp);
     socket.disconnect();
   }
 
