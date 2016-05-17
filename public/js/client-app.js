@@ -203,19 +203,45 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
 tryApp.controller('audioController', ['$scope', 'audioFactory', function($scope, audioFactory){
   console.log('audioController!');
 
-  $scope.audio1 =  function(){audioFactory.play('audio1');}; 
-  $scope.audio2 =  function(){audioFactory.play('audio2');};  
+  $scope.audio1 =  function(){audioFactory.play('wet');}; 
+  $scope.audio2 =  function(){audioFactory.play('hiccup');};  
 }]); 
 
+var API_URL = 'http://localhost:8080/';
 
-tryApp.factory('audioFactory', ['$http',  function ($http) {
+tryApp.factory('audioFactory', ['$http', '$q', function ($http, $q) {
+  var sounds = {};
   function init(){
     console.log('initialize audioFactory');
+    var audio = document.createElement('audio');
+    audio.src = API_URL + 'sounds/wet.mp3'
+    console.log(audio.src);
+    sounds['wet'] = audio;
+
+    var audio2 = document.createElement('audio');
+    audio2.src = API_URL + 'sounds/hiccup.mp3'
+    console.log(audio2.src);
+    sounds['hiccup'] = audio2;
   }
   init();
 
+  var promise = $q.when(true);
+
+  var getPromise = function(name) {
+    var deferred = $q.defer();
+    sounds[name].addEventListener('ended', deferred.resolve);
+    sounds[name].play();
+    deferred.promise.then(function () {
+      sounds[name].removeEventListener('ended', deferred.resolve);
+    });
+    return deferred.promise;
+  };
+
   function play(name){
-    console.log('playing', name);
+    console.log('play', name);
+    promise = promise.then(function() {
+      return getPromise(name);
+    });
   };
 
   var factory = {
