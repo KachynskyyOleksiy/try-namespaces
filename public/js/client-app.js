@@ -10,6 +10,10 @@ tryApp.config(function($routeProvider) {
     controller : 'gameController',
     templateUrl : 'partials/game.html',
   })
+  .when('/audio', {
+    controller : 'audioController',
+    templateUrl : 'partials/audio.html',
+  })
   .otherwise({
     templateUrl : 'partials/404.html',
   });
@@ -191,4 +195,32 @@ tryApp.factory('SocketFactory', ['$rootScope', '$cacheFactory', function ($rootS
     socket.disconnect();
   }
 
+}]);
+
+
+
+
+tryApp.controller('audioController', ['$scope', 'audioFactory', function($scope, audioFactory){
+  console.log('audioController!');
+
+  $scope.audio1 =  function(){audioFactory.play('audio1');}; 
+  $scope.audio2 =  function(){audioFactory.play('audio2');};  
+}]); 
+
+
+tryApp.factory('audioFactory', ['$http',  function ($http) {
+  function init(){
+    console.log('initialize audioFactory');
+  }
+  init();
+
+  function play(name){
+    console.log('playing', name);
+  };
+
+  var factory = {
+    play: play
+  };
+
+  return factory;
 }]);
